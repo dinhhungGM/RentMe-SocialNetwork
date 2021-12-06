@@ -1,16 +1,16 @@
-const redisClient = require("./redisClient");
+let redisClient = require("./redisClient");
 
-const EditData = (data, id, call) => {
-  const newData = data.map((item) =>
+let EditData = (data, id, call) => {
+  let newData = data.map((item) =>
     item.id === id ? { ...item, call } : item
   );
   return newData;
 };
 
-const SocketServer = (socket) => {
+let SocketServer = (socket) => {
   // Connect - Disconnect
   socket.on("joinUser", async (user) => {
-    const users = JSON.parse(await redisClient.get("users"));
+    let users = JSON.parse(await redisClient.get("users"));
     users.push({
       id: user._id,
       socketId: socket.id,
@@ -19,10 +19,10 @@ const SocketServer = (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const data = users.find((user) => user.socketId === socket.id);
+    let users = JSON.parse(await redisClient.get("users"));
+    let data = users.find((user) => user.socketId === socket.id);
     if (data) {
-      const clients = users.filter((user) =>
+      let clients = users.filter((user) =>
         data.followers.find((item) => item._id === user.id)
       );
 
@@ -33,7 +33,7 @@ const SocketServer = (socket) => {
       }
 
       if (data.call) {
-        const callUser = users.find((user) => user.id === data.call);
+        let callUser = users.find((user) => user.id === data.call);
         if (callUser) {
           users = EditData(users, callUser.id, null);
           socket.to(`${callUser.socketId}`).emit("callerDisconnect");
@@ -47,9 +47,9 @@ const SocketServer = (socket) => {
 
   // Likes
   socket.on("likePost", async (newPost) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const ids = [...newPost.user.followers, newPost.user._id];
-    const clients = users.filter((user) => ids.includes(user.id));
+    let users = JSON.parse(await redisClient.get("users"));
+    let ids = [...newPost.user.followers, newPost.user._id];
+    let clients = users.filter((user) => ids.includes(user.id));
 
     if (clients.length > 0) {
       clients.forEach((client) => {
@@ -59,9 +59,9 @@ const SocketServer = (socket) => {
   });
 
   socket.on("unLikePost", async (newPost) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const ids = [...newPost.user.followers, newPost.user._id];
-    const clients = users.filter((user) => ids.includes(user.id));
+    let users = JSON.parse(await redisClient.get("users"));
+    let ids = [...newPost.user.followers, newPost.user._id];
+    let clients = users.filter((user) => ids.includes(user.id));
 
     if (clients.length > 0) {
       clients.forEach((client) => {
@@ -72,9 +72,9 @@ const SocketServer = (socket) => {
 
   // Comments
   socket.on("createComment", async (newPost) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const ids = [...newPost.user.followers, newPost.user._id];
-    const clients = users.filter((user) => ids.includes(user.id));
+    let users = JSON.parse(await redisClient.get("users"));
+    let ids = [...newPost.user.followers, newPost.user._id];
+    let clients = users.filter((user) => ids.includes(user.id));
 
     if (clients.length > 0) {
       clients.forEach((client) => {
@@ -84,9 +84,9 @@ const SocketServer = (socket) => {
   });
 
   socket.on("deleteComment", async (newPost) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const ids = [...newPost.user.followers, newPost.user._id];
-    const clients = users.filter((user) => ids.includes(user.id));
+    let users = JSON.parse(await redisClient.get("users"));
+    let ids = [...newPost.user.followers, newPost.user._id];
+    let clients = users.filter((user) => ids.includes(user.id));
 
     if (clients.length > 0) {
       clients.forEach((client) => {
@@ -97,46 +97,46 @@ const SocketServer = (socket) => {
 
   // Follow
   socket.on("follow", async (newUser) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const user = users.find((user) => user.id === newUser._id);
+    let users = JSON.parse(await redisClient.get("users"));
+    let user = users.find((user) => user.id === newUser._id);
     user && socket.to(`${user.socketId}`).emit("followToClient", newUser);
   });
 
   socket.on("unFollow", async (newUser) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const user = users.find((user) => user.id === newUser._id);
+    let users = JSON.parse(await redisClient.get("users"));
+    let user = users.find((user) => user.id === newUser._id);
     user && socket.to(`${user.socketId}`).emit("unFollowToClient", newUser);
   });
 
   // Notification
   socket.on("createNotify", async (msg) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const client = users.find((user) => msg.recipients.includes(user.id));
+    let users = JSON.parse(await redisClient.get("users"));
+    let client = users.find((user) => msg.recipients.includes(user.id));
     client && socket.to(`${client.socketId}`).emit("createNotifyToClient", msg);
   });
 
   socket.on("removeNotify", async (msg) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const client = users.find((user) => msg.recipients.includes(user.id));
+    let users = JSON.parse(await redisClient.get("users"));
+    let client = users.find((user) => msg.recipients.includes(user.id));
     client && socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
   });
 
   // Message
   socket.on("addMessage", async (msg) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const user = users.find((user) => user.id === msg.recipient);
+    let users = JSON.parse(await redisClient.get("users"));
+    let user = users.find((user) => user.id === msg.recipient);
     user && socket.to(`${user.socketId}`).emit("addMessageToClient", msg);
   });
 
   // Check User Online / Offline
   socket.on("checkUserOnline", async (data) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const following = users.filter((user) =>
+    let users = JSON.parse(await redisClient.get("users"));
+    let following = users.filter((user) =>
       data.following.find((item) => item._id === user.id)
     );
     socket.emit("checkUserOnlineToMe", following);
 
-    const clients = users.filter((user) =>
+    let clients = users.filter((user) =>
       data.followers.find((item) => item._id === user.id)
     );
 
@@ -151,10 +151,10 @@ const SocketServer = (socket) => {
 
   // Call User
   socket.on("callUser", async (data) => {
-    const users = JSON.parse(await redisClient.get("users"));
+    let users = JSON.parse(await redisClient.get("users"));
     users = EditData(users, data.sender, data.recipient);
 
-    const client = users.find((user) => user.id === data.recipient);
+    let client = users.find((user) => user.id === data.recipient);
 
     if (client) {
       if (client.call) {
@@ -168,15 +168,15 @@ const SocketServer = (socket) => {
   });
 
   socket.on("endCall", async (data) => {
-    const users = JSON.parse(await redisClient.get("users"));
-    const client = users.find((user) => user.id === data.sender);
+    let users = JSON.parse(await redisClient.get("users"));
+    let client = users.find((user) => user.id === data.sender);
 
     if (client) {
       socket.to(`${client.socketId}`).emit("endCallToClient", data);
       users = EditData(users, client.id, null);
 
       if (client.call) {
-        const clientCall = users.find((user) => user.id === client.call);
+        let clientCall = users.find((user) => user.id === client.call);
         clientCall &&
           socket.to(`${clientCall.socketId}`).emit("endCallToClient", data);
 
