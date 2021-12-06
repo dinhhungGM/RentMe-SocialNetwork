@@ -16,6 +16,7 @@ let SocketServer = (socket) => {
       socketId: socket.id,
       followers: user.followers,
     });
+    await redisClient.set("users", JSON.stringify(users));
   });
 
   socket.on("disconnect", async () => {

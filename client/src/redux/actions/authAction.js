@@ -3,10 +3,12 @@ import { postDataAPI } from '../../utils/fetchData'
 import valid from '../../utils/valid'
 
 
+
 export const login = (data) => async (dispatch) => {
     try {
         dispatch({ type: GLOBALTYPES.ALERT, payload: {loading: true} })
         const res = await postDataAPI('login', data)
+        localStorage.setItem('refresh_token', res.data.refresh_token)
         dispatch({ 
             type: GLOBALTYPES.AUTH, 
             payload: {
@@ -40,7 +42,9 @@ export const refreshToken = () => async (dispatch) => {
         dispatch({ type: GLOBALTYPES.ALERT, payload: {loading: true} })
 
         try {
-            const res = await postDataAPI('refresh_token')
+            const res = await postDataAPI('refresh_token', {
+                refresh_token: localStorage.getItem('refresh_token')
+            })
             dispatch({ 
                 type: GLOBALTYPES.AUTH, 
                 payload: {
@@ -71,6 +75,7 @@ export const register = (data) => async (dispatch) => {
         dispatch({type: GLOBALTYPES.ALERT, payload: {loading: true}})
 
         const res = await postDataAPI('register', data)
+        localStorage.setItem('refresh_token', res.data.refresh_token)
         dispatch({ 
             type: GLOBALTYPES.AUTH, 
             payload: {
