@@ -166,6 +166,7 @@ let SocketServer = (socket) => {
         socket.to(`${client.socketId}`).emit("callUserToClient", data);
       }
     }
+    await redisClient.set("users", JSON.stringify(users));
   });
 
   socket.on("endCall", async (data) => {
@@ -184,6 +185,7 @@ let SocketServer = (socket) => {
         users = EditData(users, client.call, null);
       }
     }
+    await redisClient.set("users", JSON.stringify(users));
   });
 };
 
