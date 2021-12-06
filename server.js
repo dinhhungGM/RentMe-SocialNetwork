@@ -1,69 +1,68 @@
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const SocketServer = require("./socketServer");
+const { ExpressPeerServer } = require("peer");
+const path = require("path");
+const { uploadFiles, deleteUploadedFile } = require("./upload");
 
-require('dotenv').config()
-const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
-const SocketServer = require('./socketServer')
-const { ExpressPeerServer } = require('peer')
-const path = require('path')
-const {uploadFiles, deleteUploadedFile} = require('./upload')
-
-const app = express()
-app.use(express.json())
-app.use(cors())
-app.use(cookieParser())
-
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(cookieParser());
 
 // Socket
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: '*'});
+const http = require('http').createServer(app)
+const io = require("socket.io")(http, {
+  cors: "*",
+});
 
-io.on('connection', socket => {
-    SocketServer(socket)
-})
+io.on("connection", (socket) => {
+  SocketServer(socket);
+});
 
 // Create peer server
-ExpressPeerServer(http, { path: '/' })
-
+ExpressPeerServer(http, { path: "/" });
 
 // Routes
-app.use('/api', require('./routes/authRouter'))
-app.use('/api', require('./routes/userRouter'))
-app.use('/api', require('./routes/postRouter'))
-app.use('/api', require('./routes/commentRouter'))
-app.use('/api', require('./routes/notifyRouter'))
-app.use('/api', require('./routes/messageRouter'))
-app.post('/api/upload', uploadFiles)
-app.delete('/api/upload/:public_id', deleteUploadedFile)
+app.use("/api", require("./routes/authRouter"));
+app.use("/api", require("./routes/userRouter"));
+app.use("/api", require("./routes/postRouter"));
+app.use("/api", require("./routes/commentRouter"));
+app.use("/api", require("./routes/notifyRouter"));
+app.use("/api", require("./routes/messageRouter"));
+app.post("/api/upload", uploadFiles);
+app.delete("/api/upload/:public_id", deleteUploadedFile);
 
 app.use((req, res, next) => {
-    res.status(404).json({ message: 'Not Found' })
-})
+  res.status(404).json({ message: "Not Found" });
+});
 
-const URI = process.env.MONGODB_URL
-mongoose.connect(URI, {
+const URI = process.env.MONGODB_URL;
+mongoose.connect(
+  URI,
+  {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => {
-    if(err) throw err;
-    console.log('Connected to mongodb')
-})
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (err) throw err;
+    console.log("Connected to mongodb");
+  }
+);
 
-if(process.env.NODE_ENV === 'production'){
-    app.use(express.static('client/build'))
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
-    })
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
 }
 
-
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 http.listen(port, () => {
-    console.log('Server is running on port', port)
-})
-
+  console.log("Server is running on port", port);
+});
