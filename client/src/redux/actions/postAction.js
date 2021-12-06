@@ -2,7 +2,7 @@ import { GLOBALTYPES } from './globalTypes'
 import { imageUpload } from '../../utils/imageUpload'
 import { postDataAPI, getDataAPI, patchDataAPI, deleteDataAPI } from '../../utils/fetchData'
 import { createNotify, removeNotify } from './notifyAction'
-import axios from 'axios'
+import axiosClient from '../../utils/axiosClient'
 
 export const POST_TYPES = {
     CREATE_POST: 'CREATE_POST',
@@ -172,7 +172,7 @@ export const deletePost = ({post, auth, socket}) => async (dispatch) => {
     try {
         const res = await deleteDataAPI(`post/${post._id}`, auth.token)
         for(let i = 0; i < post.images.length; i++){
-            await axios.delete(`/api/upload/${post.images[i].public_id}`)
+            await axiosClient.delete(`/api/upload/${post.images[i].public_id}`)
         }
         // Notify
         const msg = {

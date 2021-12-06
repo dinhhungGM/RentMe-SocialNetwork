@@ -26,10 +26,11 @@ export const imageUpload = async (images) => {
         formData.append("upload_preset", "efxjficn")
         formData.append("cloud_name", "devat-channel")
 
-        const res = await fetch("/api/upload", {
+        const res = await fetch(`${process.env.REACT_APP_API}/api/upload`, {
             method: "POST",
             body: formData
         })
+
         
         const data = await res.json()
         imgArr.push({public_id: data.public_id, url: data.secure_url})
