@@ -6,4 +6,4 @@ RUN yarn install --production=true --network-timeout 1000000
 COPY --chown=node:node . .
 EXPOSE 5000
 USER node
-CMD ["dumb-init", "node", "main.js" ]
+CMD ["dumb-init", "node", "server.js" ]
