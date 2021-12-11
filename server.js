@@ -27,6 +27,9 @@ io.on("connection", (socket) => {
 ExpressPeerServer(http, { path: "/" });
 
 // Routes
+app.all("/", (req, res) => {
+  res.send("Server is running");
+});
 app.use("/api", require("./routes/authRouter"));
 app.use("/api", require("./routes/userRouter"));
 app.use("/api", require("./routes/postRouter"));
